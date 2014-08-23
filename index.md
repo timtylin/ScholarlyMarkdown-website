@@ -21,13 +21,23 @@ ScholarlyMarkdown introduces some new syntax for scholarly and academic features
 
 It borrows a unique templating system/language from Pandoc with variables and metadata that may be set using YAML blocks inside the document. This allows flexibility to configure the output formatting to your heart's content without polluting the soucre text with presentation-specific code.
 
+## Guides
+
 [ScholarlyMarkdown Guide](Scholarly-Markdown-Guide.html)
 
 [ScholarlyMarkdown FAQs](Scholarly-Markdown-FAQ.html)
 
 [ScholarlyMarkdown HTML Schema](Scholarly-Markdown-HTML-Schema.html)
 
+## Implementation
+
 **Scholdoc** is the reference implementation of ScholarlyMarkdown. It is a fork of Pandoc and is build upon the same parsing engine. You can find the latest binary distributions here:
 
-- [OSX](scholdoc-distribution/osx/scholdoc-0.1.1-alpha-osx.zip)
+- [OSX (10.7 or above)](scholdoc-distribution/osx/scholdoc-0.1.1-alpha-osx.zip)
+
+**ScholarlyMarkdown Core CSS** is a CSS3 stylesheet that provides the necessary baseline formatting for all HTML output of ScholarlyMarkdown (figure spacing, math element spacing, etc). You should include it in every HTML file that `scholdoc` generates.
+
+[You can find the latest ScholarlyMarkdown Core CSS here](scholdoc-distribution/css/core/scholmd-core-latest.css)
+
+
 
