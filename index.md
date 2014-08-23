@@ -45,7 +45,7 @@ Furthermore, ScholarlyMarkdown borrows a unique templating system/language from 
 
 ## Maintainer
 
-ScholarlyMarkdown is developed and maintained by [Tim T.Y. Lin](timtylin@gmail.com)
+ScholarlyMarkdown is developed and maintained by [Tim T.Y. Lin](mailto:timtylin@gmail.com)
 
 
 
