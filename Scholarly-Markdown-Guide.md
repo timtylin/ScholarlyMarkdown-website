@@ -1,7 +1,7 @@
 ---
 title: ScholarlyMarkdown Syntax Guide
 author:
-        - [Tim T.Y. Lin](timtylin@gmail.com)
+        - Tim T.Y. Lin (<timtylin@gmail.com>)
         - Graham Beales
 subject: The differences between ScholarlyMarkdown and Pandoc's implementation of Markdown.
 date: August 22, 2014
