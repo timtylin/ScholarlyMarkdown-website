@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Secret Texmath Tester!</title>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+(function($) { // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values
+	$.QueryString = (function(a) {
+	    if (a == "") return {};
+	    var b = {};
+	    for (var i = 0; i < a.length; ++i)
+	    {
+		var p=a[i].split('=');
+		if (p.length != 2) continue;
+		b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+	    }
+	    return b;
+        })(window.location.search.substr(1).split('&'))
+})(jQuery);
+
+function newpage() {
+  var input = $("#text").val();
+  var from = $("#from").val();
+  var to = $("#to").val();
+  var href = window.location.href;
+  window.location.href = href.replace(/([?].*)?$/,"?" + $.param({text: input, from: from, to: to}));
+};
+
+function process(res) {
+  $("#results").text(res.success);
+}
+
+$(document).ready(function() {
+    var text = $.QueryString["text"];
+    $("#text").val(text);
+    var from = $.QueryString["from"] || "tex";
+    $("#from").val(from);
+    var to = $.QueryString["to"] || "omml";
+    $("#to").val(to);
+    if (text && text != "") {
+       $.getJSON("http://scholarlymarkdown.com/cgi-bin/texmath-cgi", { from: from, to: to, input: text }, process);
+    };
+    $("#convert").click(newpage);
+});
+  </script>
+  <style type="text/css">
+    h1 { margin-bottom: 1em; }
+    body { margin: auto; }
+    textarea { height: auto; width: 100%; font-family: monospace; margin-top: 15px; }
+    div.alert { margin: 1em; }
+    h3 { margin-top: 0; margin-bottom: 0; padding: 0; font-size: 100%; }
+    pre#results { width: 100%; margin-top: 15px; }
+    footer { color: #555; text-align: center; margin: 1em; }
+    p.version { color: #555; }
+    button#convert { vertical-align: bottom; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <h1>Texmath Tester</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <label for="from">
+      from
+      </label>
+      <select id="from">
+        <option value="tex" selected>TeX/LaTeX</option>
+        <option value="omml">Office OMML</option>
+        <option value="mathml">MathML</option>
+        <option value="native">Native Texmath</option>
+      </select>
+      <br/>
+      <textarea id="text" maxlength="3000" rows="15"></textarea>
+    </div>
+    <div class="col-md-6">
+      <label for="to">
+      to
+      </label>
+      <select id="to">
+          <option value="omml" selected>Office OMML</option>
+          <option value="tex">TeX/LaTeX</option>
+          <option value="mathml">MathML</option>
+          <option value="xhtml">MathML in XHTML wrapper</option>
+          <option value="native">Native Texmath</option>
+      </select>
+      &nbsp;
+      <button class="btn btn-primary btn-xs" id="convert">Convert</button>
+      <br/>
+      <pre id="results"></pre>
+    </div>
+  </div>
+</div>
+<footer>
+ <p class="version">Using texmath 0.7<span id="version"></span></p>
+ <p>Texmath Tester is based on <a href="http://johnmacfarlane.net/pandoc/try/">Try Pandoc!</a> &copy; 2013&ndash;2014 <a href="http://johnmacfarlane.net">John MacFarlane</a></p>
+</footer>
+</body>
+</html>
