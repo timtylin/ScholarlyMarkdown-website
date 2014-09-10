@@ -1,8 +1,7 @@
----
-title: ScholarlyMarkdown
----
-
-*making academic writng less frustrating and future-proof since 2014*
+<div style="margin: 150px auto 100px; width: 100%;">
+<img src="images/scholmd-logo-tight.png" style="margin: 0px auto 0px; display: block;">
+<p style="text-align: center;">*make academic writing less frustrating to share*</p>
+</div>
 
 Let's keep the dream of [academic writing using Markdown](https://github.com/scholmd/scholmd/wiki) alive.
 
