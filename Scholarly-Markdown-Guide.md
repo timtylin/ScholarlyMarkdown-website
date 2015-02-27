@@ -4,10 +4,35 @@ author:
         - Tim T.Y. Lin (<timtylin@gmail.com>)
         - Graham Beales
 subject: The differences between ScholarlyMarkdown and Pandoc's implementation of Markdown.
-date: August 22, 2014
+date: January 31, 2015
 company: University of British Columbia
 keywords: markdown, scholarly, scholmd, latex, html, word, docx, .tex, guide
 ---
+
+## Summary of new features in ScholarlyMarkdown
+
+The following lists major additions over the [Pandoc Markdown](http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown):
+
+- New [Figure/Float convention](#floating-env)
+- Uses code and fenced code block syntax for [inline and display math](#math)
+- Native ability to give figures/floats and display math [identifiers](#numbered-internal-references) so they can be referenced
+- Native ability to [specify width for images](#floating-subfigs)
+- [Numeric references](#numbered-internal-references) to figures/display math by `[#id]` and `(#id)`
+- [Special "Abstract:" section](#special-abstract) that is automatically inserted into the metadata
+
+*Future plans (as of October 2014):*
+
+- Special syntax/keyword for appendices
+- Multi-lingual keyword support
+- Text blocks that are enumerated and referenceable, in particular Theorems/Definitions/Examples
+- Better handling of author metainfo (incorporating discussions [here](https://github.com/scholmd/scholmd/wiki/Article-metadata))
+- Automatic RDF generation from metadata
+
+### Current tools that support ScholarlyMarkdown
+
+As much as possible, ScholarlyMarkdown is designed to fallback gracefully to most existing Markdown processor and editors, so you can write ScholarlyMarkdown using almost any text editor you want.
+
+For final conversion to HTML, LaTeX, Word Docx, and others, the reference tool that implements all of the ScholarlyMarkdown extensions is [Scholdoc], which is a specialized fork of [Pandoc] that is limited to reading ScholarlyMarkdown and outputting to (*as of January 2015*) HTML and LaTeX.
 
 ## First steps
 
@@ -25,7 +50,11 @@ For the purposed of this tutorial, we'll save it to a file called `hello.scholmd
 
 ### Rendering output
 
-Currently the reference implementation for ScholarlyMarkdown rendering is a program called `scholdoc`, which is based on [Pandoc](http://johnmacfarlane.net/pandoc). Place the binary somewhere on your execution path, then run:
+Currently the reference implementation of ScholarlyMarkdown is [Scholdoc], which is an open source, specialized fork of [Pandoc] that is limited to reading ScholarlyMarkdown and outputting to (*as of January 2015*) HTML and LaTeX.
+
+Binary distributions are available from the [Scholdoc download page][scholdoc-dl]. Currently there are builds available for Windows, OS X, and Linux.
+
+Make sure [Scholdoc] is installed and on your execution your execution path, then run:
 
     scholdoc hello.scholmd
 
@@ -42,7 +71,11 @@ By default, Markdown (and subsequently ScholarlyMarkdown) ignores all line break
 1. Add either a `\` character or two spaces after each line
 2. Use a [line block](http://johnmacfarlane.net/pandoc/README.html#line-blocks) instead of a paragraph
 
-#### Changing the look
+### More on Markdown
+
+The [official Scholmd wiki](https://github.com/scholmd/scholmd/wiki/) has a great [3-minute guide on plain Markdown.](https://github.com/scholmd/scholmd/wiki/Learn-markdown-in-3-minutes)
+
+### Changing the look
 
 The output HTML5 file should follow a [schema described here in pseudo-HAML format](Scholarly-Markdown-HTML-Schema.html), which allows you to write a custom CSS file. The schema follow semantic versioning for APIs: before 0.x.x, any minor revision may be backwards-incompatible with previous versions. After 1.x.x, only major revisions may introduce incompatible changes.
 
@@ -59,31 +92,37 @@ The latest ScholarlMarkdown Core can be found [here](scholdoc-distribution/CSS/c
 
 ### Inline Math
 
-Inline math is delimited by **two** backticks followed immediately by anything other than a whitespace, followed by two backticks.  So``` ``a+b=c`` ```is displayed as ``a+b=c``, yet an inline code block``` `` `code` `` ```is still displayed as expected:`` `code` ``.
+Inline math works exactly like any inline code in Markdown, except it is delimited by **exactly two** backticks. For example, ``` ``a+b=c`` ```is interpreted and displayed as math: ``a+b=c``.
 
-### Display/Block Level Math
+Using the Markdown code syntax for math prevents old converters and editors that doesn't understand ScholarlyMarkdown from trying to interpret the content math code.
 
-To create display/block level math, surround it by three backticks with the math label as follows:
+Currently, ScholarlyMarkdown always assumes that the math content are LaTeX math commands. This allows for fairly straightforward conversion to LaTeX documents.
 
-    ```math {#yourmathlabel}
+To preserve a common use for double-backtick syntax, the math content must start *immediately* after the starting backticks. If you write``` `` `code` `` ```it would still be displayed as normal Markdown inline code:`` `code` ``.
+
+### Display/Block Level Math {#math-disp}
+
+To create display/block level math, surround it by three backticks or tildes with the math label as follows:
+
+    ```math #yourmathlabel
         \textit{insert latex math code here}
     ```
 
-The the {#label} is optional, but it produces a useful reference for other uses in the document, and functions just as any other reference.  The `` math `` keyword is required to distinguish the math block from the format-specification keyword used in Github-Flavoured Markdown.
+The `#label` is optional, but giving it a label will attach a number to this math expression, so you can [refer back to it later](#numbered-internal-references). The `math` keyword is required to distinguish the math block from the format-specification keyword used in Github-Flavoured Markdown.
 
 So the above code block is displayed as:
 
-```math {#yourmathlabel}
+```math #yourmathlabel
     \textit{insert latex math code here}
 ```
 
-ScholarlyMarkdown smartly aligns and/or gathers an equation based upon the length of the equation as well as whether you have aligned it using the \& symbol as in LaTeX.
+ScholarlyMarkdown smartly aligns and/or gathers an equation based upon the length of the equation as well as whether you have aligned it using the `&` symbol, as in LaTeX.
 
 #### Citing display math expressions
 
 Citing display equations is done using the a special reference/label syntax in ScholarlyMarkdown, using the `#` character (think "hashtags").
 
-To show a numeric reference to the previous math expression, simply type your reference label surrounded by squared brackets `[#yourmathlabel]`. This will show up as: [#yourmathlabel]. Alternatively, you can surround it in parenthesis `(#yourmathlabel)`, which will show up as: (#yourmathlabel). These numbers will also link back to the math expression in formats that support them.
+To show a numeric reference to the previous math expression, simply type your reference label surrounded by squared brackets `[#yourmathlabel]`. This will show up as [#yourmathlabel]  (the equation number). Alternatively, you can surround it in parenthesis `(#yourmathlabel)`, which will show up as (#yourmathlabel). These numbers will also link back to the math expression in formats that support them.
 
 Numeric references are automatically prepended with non-breaking spaces, so you should not worry about line breaks occurring right before a number.
 
@@ -91,7 +130,7 @@ See also the following section on [Numbered internal references].
 
 ### HTML math support
 
-ScholarlyMarkdown officially supports [Mathjax](http://www.mathjax.org) exclusively for math support in HTML. In additional, every HTML5 webpage output by `scholdoc` includes the necessary markup to include the latest version of Mathjax from the official CDN. This behavior can be disabled by the `--no-mathjax-cdn` flag given to `scholdoc`.
+ScholarlyMarkdown officially uses [Mathjax](http://www.mathjax.org) exclusively for math support in HTML. In additional, every HTML5 webpage output by `scholdoc` includes the necessary markup to include the latest version of Mathjax from the official CDN. This behavior can be disabled by the `--no-mathjax-cdn` flag given to `scholdoc`.
 
 ### Differences from Pandoc
 
@@ -108,94 +147,85 @@ LaTeX macros can be defined in ScholarlyMarkdown using a special Math block:
         {latex math definitions}
     ```
 
-which will move the equation into the beginning of the header rather than the body of the document.
+which will move the definitions into the beginning of the header rather than the body of the document, ensuring that all math expressions your document can use these definitions. Note that this allows you to move these definitions out of the way of the main text (and perhaps into the bottom of your document).
 
 If you include line breaks with the `\\` symbol, ScholarlyMarkdown automatically wraps your math in a `gathered` environment. If you use alignment symbols `&` in addition to the line break `\\` symbol, ScholarlyMarkdown wraps your math in a `aligned` environment instead. You do not need to manually add the environment. If you want to disable this behavior, use the `math_plain` instead of the `math` keyword.
 
 ### Guide for Word users
 
-## Numbered internal references
+## Floating figure environment {#floating-env}
 
-When you specify a reference in the opening line of a Figure, table, equation, or algorithm, ScholarlyMarkdown automatically creates clickable references and numbers them by their placement in the document ignoring the name you give to the reference. So I could make this figure:
-
-    #### Figure: Look at the funny reference! {#figureReference25}
-    
-    ![](http://i.imgur.com/T2geA8K.jpg){#subFigureReference width=20%}
-    
-    : The number in the reference tag does not match what is displayed
-        
-and when the reference `(#figureReference25)` is used (note the click-ability of the following number!): (#figureReference25) it does not show the number 25, but instead the actual number of the figure itself:
-
-#### Figure: Look at the funny reference! {#figureReference25}
-        
-![](http://i.imgur.com/T2geA8K.jpg){#subFigureReference width=20%}
-
-: The number in the reference tag does not match what is displayed
-
-and when the subfigure reference `[#subFigureReference]` is used (again, note its click-ability!): [#subFigureReference] the figure number is automatically displayed and calculated.
-
-It should be noted that when the figure was referenced it was surrounded by parentheses, but when the sub figure was referenced it was not.  This is because of the differences between using a reference with parentheses versus square brackets. Both are valid, and simply cosmetic differences.
-
-### Guide for advanced LaTeX users
-
-Referencing a Reference/label can be done in two ways, as seen in the last two examples:
-
-    1. (#label) maps to \eqref{label} in LaTeX
-    2. [#label] maps to \ref{label} in LaTeX
-
-which are displayed as follows:
-
-1. (#label) maps to \eqref{label} in LaTeX
-2. [#label] maps to \ref{label} in LaTeX
-
-Notice that in the first line, `(#label)` is replaced by `(1)` and `[#label]` is replaced by `1` as is the case for `\eqref{label}` and `\req{label}` in LaTeX, respectively, and the `eqref{label}` and `\req{label}` are both stripped from the output as other LaTeX code is in Pandoc.
-
-### Guide for Word users
-
-## Figure environment
-
-ScholarlyMarkdown allows for floating figures with attached captions and references. To define a figure block, start with a 4th-level header followed by ` Figure: `.  On the same line you may include an description of the figure that is specific to the Markdown file, and then a reference as below:
+ScholarlyMarkdown allows for floating figures with attached captions and references. To define a figure block, start an ATX header of *any* level by the keyword `Figure:`.  On the same line you may include an description of the figure (it will be ignored by the parser), and then a finally a reference label. It will look like this:
 
     #### Figure: this text is ignored {#referenceToFigure}
 
-The content of the figure is specified on the the following lines.  In ScholarlyMarkdown, a figure can contain as many images as desired with each one specified on a new line that is started with an ` '!' `.  Following the exclamation mark is an optional subcaption contained in square brackets, followed by a link to the figure contained in parantheses, followed by an optional subfigure reference and width specification enclosed in curly braces, followed by an optional endline specification.  So the following line:
+On the next lines you follow with one or more Markdown images ("subfigures") as the content of the float (each on their own line):
 
-    ![my subCaption](figureLink){#subFigureReference width=75%}\
+    ![](image1.png)
+    ![](image2.png)
+    ![](image3.jpg)
 
-will produce place the image found at figureLink into the figure, with a subcaption "my subCaption" that will have reference "subFigureReference", a width of 75 of the block and will be the last figure in the row.
+Finally, a caption can be specified by a following paragraph that starts with the keyword `Caption:` (or just `:` will do)
 
-The final line of the figure block is a caption for the entire figure prepended with a colon and a space as such: `: Figure Caption`.
+    Caption: This is my first figure. Hello!
 
-Using this syntax, can easily and cleanly make figures.  For example:
+Putting them all together, we end up with the following figure:
 
-    #### Figure: this text is completely ignored {#figure1}
-    
-    ![sub](http://i.imgur.com/T2geA8K.jpg){#reginfig1 width=20%}\
-    ![subfig](http://i.imgur.com/T2geA8K.jpg){width=same}
-    ![](http://i.imgur.com/T2geA8K.jpg){width=30%}
-    ![longer subcaption that flows](http://i.imgur.com/T2geA8K.jpg){#reginfig3 width=same}
-    
-    : Any following paragraph that begins with a colon character will be the caption
-produces:
+#### Figure: this text is ignored {#figure1}
 
-#### Figure: this text is completely ignored {#figure1}
-
-![sub](http://i.imgur.com/T2geA8K.jpg){#reginfig1 width=20%}\
-![subCaption](http://i.imgur.com/T2geA8K.jpg){width=same}
 ![](http://i.imgur.com/T2geA8K.jpg){width=30%}
-![longer subcaption that flows](http://i.imgur.com/T2geA8K.jpg){#reginfig3 width=same}
+![](http://i.imgur.com/T2geA8K.jpg){width=^}
+![](http://i.imgur.com/T2geA8K.jpg){width=^}
 
-: Any following paragraph that begins with a colon character will be the caption
+Caption: This is my first figure. Hello!
 
-Notice a few things here:
+### Adjusting the subfigures {#floating-subfigs}
 
-- There should always be a gap between the opening line and the content of the figure, as well as the content of the figure and the caption.
-- Subfigures are automatically labelled "a, b, c" etc. if a subfigure reference is specified.
-- Square brackets ` [] ` are still required even if you do not plan to add a subcaption.
+There are several things you can do to the images inside the float block. First of all, each image can have its own subcaption (which goes inside the alt text block). Each subfigure can also have its own label attached (within curly braces), and a width can be specified in percentage of the container width.
+
+    ![subcaption here](image.jpg){#subfigLabel width=50%}
+
+You can also force a line break by adding a `\` to the end of an image. Here's a complete example (specifying `same` for the width will use the last **user-defined** width in the document):
+
+    #### Figure: this text is ignored {#figure2}
+    
+    ![look at me](sealbaby.jpg){#sealA width=50%}\
+    ![and also me](sealbaby.jpg){#sealB width=30%}
+    ![](sealbaby.jpg){#sealC width=same}
+    
+    Caption: Look at all my baby seals!
+
+The above displays as:
+
+#### Figure: this text is ignored {#figure2}
+![look at me](http://i.imgur.com/T2geA8K.jpg){#sealA width=50%}\
+![and also me](http://i.imgur.com/T2geA8K.jpg){#sealB width=30%}
+![](http://i.imgur.com/T2geA8K.jpg){#sealC width=same}
+Caption: Look at all my baby seals!
+
+A few things to note:
+
+- There can at most be **one** blank line between the opening line and the content of the figure, as well as the content of the figure and the caption.
+- Figure are given a number if and only if you supply a reference label to the figure or any of the subfigures.
+- Subfigures are automatically labelled "a, b, c" etc. if *any* subfigure reference is specified.
 - The reference for the subfigure as well as the width attribute are included in the same set of curly braces separated only by a space.
 
-Figures are automatically numbered throughout the document, and smartly given a wide, aligned, or regular width label.  For HTML output they will also resize with the browser window.
+### Other kinds of floats (tables, code, etc)
 
+Other kinds of floats can be used in ScholarlyMarkdown, and is controlled by the keyword that you use to start the float. The keyword `Figure:` leads to image floats. However, if you used `Table:` instead, it will parse a following Markdown table as float content instead of images (captions still work the same).
+
+#### Table: float keyword and expected contents {#table:floatKeywords}
+
+|  Keyword  | Expected float content |
+|-----------|------------------------|
+| Figure:   | One or more images     |
+| Table:    | One table              |
+| Textbox:  | One line block         |
+| Algorithm: | One line block        |
+| Code:     | One indented or fenced code block |
+| Listing:  | One indented or fenced code block |
+
+Caption: Valid float keywords in ScholarlyMarkdown and the contents they recognize
 
 ### Differences from Pandoc
 
@@ -203,13 +233,58 @@ Pandoc's figure environment is extremely limited.  It only allows for captions, 
 
 ### Guide for advanced LaTeX users
 
-Normally, ScholarlyMarkdown translates figures to the `figure` environment LaTeX. If you have multi-column documents and you wish to use the `figure*` environment to span columns, use a `.wide` keyword at the end of the first line, within the reference's curly braces.  So, for example, the following figure opening:
+Normally, ScholarlyMarkdown translates figures to the `\begin{figure}...\end{figure}` environment in LaTeX. If you have multi-column documents and you wish to use the `figure*` environment to span columns, use a `.wide` keyword at the end of the first line, within the reference's curly braces.  So, for example, the following figure opening:
 
-    #### Figure: Yay figure informational text! {#figure2Reference .wide}
+    #### Figure: {#figlabel .wide}
 
-would create a figure that spans multiple columns, using the `figure*` environment.
+would create a figure that spans multiple columns, using the `figure*` environment. In HTML output, this would also add a `scholmd-widefloat` class to the `<figure>` element, so it can be appropriately targeted by CSS rules. See the [ScholarlyMarkdown HTML schema](Scholarly-Markdown-HTML-Schema.html) for more details.
 
 ### Guide for Word users
+
+## Numbered internal references
+
+When you specify a reference in the opening line of a Figure or Math, ScholarlyMarkdown automatically creates clickable references and numbers them by their placement in the document ignoring the name you give to the reference. So when I make the following display formula for Maxwell's equations:
+
+    ~~~math #maxwellEq
+    \left.\begin{aligned}
+    B'&=-\partial\times E\\
+    E'&=\partial\times B - 4\pi j
+    \end{aligned}
+    \right\}
+    \qquad \text{Maxwell's equations}
+    ~~~
+
+~~~math #maxwellEq
+\left.\begin{aligned}
+B'&=-\partial\times E\\
+E'&=\partial\times B - 4\pi j
+\end{aligned}
+\right\}
+\qquad \text{Maxwell's equations}
+~~~
+
+I can refer back to it by using the syntax `(#maxwellEq)`, which shows (#maxwellEq). I can also get just the number and omit the parenthesis by `[#maxwellEq]` which just gives [#maxwellEq]. The figure number is automatically calculated and displayed.
+
+References to figures also work the same way. I can refer to Figure [#figure2] using `[#figure2]`, and subfigure [#sealB] using `[#sealB]`. The syntax is the same regardless. I can also use the parenthesis version (#figure2) and (#sealB).
+
+Whenever possible, the numbered reference will always generate a clickable link to the original equation or figure.
+
+### Guide for advanced LaTeX users
+
+Numerical references translate to either the `\eqref` or `\ref` commands in LaTeX:
+
+    - (#maxwellEq) maps to `\eqref{label}` in LaTeX
+    - [#maxwellEq] maps to `\ref{label}` in LaTeX
+
+which are displayed as follows:
+
+- (#maxwellEq) maps to `\eqref{maxwellEq}` in LaTeX
+- [#maxwellEq] maps to `\ref{maxwellEq}` in LaTeX
+
+Note that only the numbers are displayed. There is currently no native support for things like `\autoref` in LaTeX. However, ScholarlyMarkdown automatically converts whitespace in front of a numbered reference into a non-breaking space (unless it was preceded by a punctuation mark). No more typing things like `figure~\ref{fig5}`!
+
+### Guide for Word users
+
 
 ## Including Metadata
 
@@ -221,9 +296,9 @@ To include metadata in your file, ScholarlyMarkdown uses the YAML standard, for 
             - Time Lin
             - Graham Beales
     subject: The differences between ScholarlyMarkdown and Pandoc's implementation of Markdown.
-    date: August 22, 2014
+    date: October 01, 2014
     company: University of British Columbia
-    keywords: markdown, scholarly, scholmd, latex, html, word, docx, .tex, guide
+    keywords: markdown, scholarly, scholmd, latex, html, word, docx, guide
     ---
 
 which is automatically parsed to include the title and the author at the top of this document.  The subject, company, and keywords fields were included for testing, but are not yet handled by the ScholarlyMarkdown program.
@@ -237,10 +312,9 @@ Current meaningful (in terms of document information) fields include:
 
 with the author field being the only one that accepts a list as input.
 
-### Abstracts
+### Abstracts {#special-abstract}
 
-An abstract can be included as as metadata in your ScholarlyMarkdown file.  However, there is a second way to include abstracts besides the YAML format.  Instead, you include an abstract by using a second level header 'Abstract' with a colon after it as follows:
-
+An abstract can be included as metadata in a field `abstract:` in your ScholarlyMarkdown file.  However, there is a second way to include abstracts besides the YAML format.  Instead, you include an abstract by using a second level header 'Abstract' with a colon after it as follows:
 
     ## Abstract:
     This is an abstract!
@@ -252,6 +326,24 @@ The abstract can be included anywhere in the Markdown file, and will be inserted
 ### Differences from Pandoc Markdown
 
 ScholarlyMarkdown offers the second "section title" format to include an abstract.
+
+## Header levels
+
+ScholarlyMarkdown has a fixed definition of how header levels translate to the different formats. This is to avoid semantic confusion when authoring.
+
+#### Table: Scholmd header levels {#table:scholmdHeaders}
+
+| HTML Level  | LaTeX/Word meaning     |
+|-------------|------------------------|
+| Header 1    | Chapter                |
+| Header 2    | Section                |
+| Header 3    | Subsection             |
+| Header 4    | Subsubsection          |
+| Header 5    | Paragraph              |
+| Header 6    | Subparagraph           |
+
+Caption: all header levels and their implied semantic meaning
+
 
 ## Templating System
 
@@ -278,3 +370,8 @@ ScholarlyMarkdown offers the second "section title" format to include an abstrac
 
 ## Suggestions and guidelines
 
+
+
+[Scholdoc]: http://scholdoc.scholarlymarkdown.com
+[Pandoc]: http://johnmacfarlane.net/pandoc/
+[scholdoc-dl]: http://scholdoc.scholarlymarkdown.com/download/
