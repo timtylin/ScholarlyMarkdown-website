@@ -251,7 +251,7 @@ The abstract can be included anywhere in the Markdown file, and will be inserted
 
 ### Differences from Pandoc Markdown
 
-ScholarlyMarkdopwn offers the second "section title" format to include an abstract.
+ScholarlyMarkdown offers the second "section title" format to include an abstract.
 
 ## Templating System
 
