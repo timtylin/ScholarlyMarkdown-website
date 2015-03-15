@@ -49,6 +49,8 @@ This document outlines the HTML5 class/element schema of a Scholarly Markdown do
 %span.math.scholmd-math-inline
 ```
 
+### Display math
+
 ```haml
 %span.math.scholmd-math-display
 ```

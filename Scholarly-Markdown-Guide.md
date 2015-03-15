@@ -24,7 +24,7 @@ The following lists major additions over the [Pandoc Markdown](http://johnmacfar
 
 - Special syntax/keyword for appendices
 - Multi-lingual keyword support
-- Text blocks that are enumerated and referenceable, in particular Theorems/Definitions/Examples
+- Text blocks that are enumerated and referenceable, in particular Theorems/Definitions/Examples, and other types of admonitions.
 - Better handling of author metainfo (incorporating discussions [here](https://github.com/scholmd/scholmd/wiki/Article-metadata))
 - Automatic RDF generation from metadata
 
@@ -85,7 +85,7 @@ A custom css file can be included using the `--css=URL` flag to `scholdoc`, or b
 
 ScholarlyMarkdown also defines a default core CSS3 stylesheet that should be used for all output that follows the ScholarlyMarkdown [schema](Scholarly-Markdown-HTML-Schema.html) (which is that `scholdoc` does). 
 
-The latest ScholarlMarkdown Core can be found [here](scholdoc-distribution/CSS/core/scholmd-core-latest.css).
+The latest ScholarlMarkdown Core CSS can be found [here](scholdoc-distribution/css/core/scholmd-core-latest.css).
 
 
 ## Math
