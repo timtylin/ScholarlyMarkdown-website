@@ -27,7 +27,7 @@ To achieve this goal, ScholarlyMarkdown aggregates some very recent developments
 
 ScholarlyMarkdown introduces some new syntax for scholarly and academic features. However, at the same time it aims to be composed of 100% valid Github-Flavored Markdown and PHP Markdown Extra syntax and almost 90% backwards compatibility with existing renderers of those syntaxes, while being 100% compatible with Pandoc-markdown. It contains no completely new syntax over the previous standards, and instead provides its power from conventions.
 
-Furthermore, ScholarlyMarkdown borrows a unique templating system/language from Pandoc with variables and metadata that may be set using YAML blocks inside the document. This allows flexibility to configure the output formatting to your heart's content without polluting the soucre text with presentation-specific code.
+Furthermore, ScholarlyMarkdown borrows a unique templating system/language from Pandoc with variables and metadata that may be set using YAML blocks inside the document. This allows flexibility to configure the output formatting to your heart's content without polluting the source text with presentation-specific code.
 
 ## Guides
 
